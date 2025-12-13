@@ -1,0 +1,91 @@
+basePath: /api
+definitions:
+  github_com_Antiaastu_distributed-event-ticketing_event-service_internal_models.Event:
+    properties:
+      available_seats:
+        type: integer
+      createdAt:
+        type: string
+      date:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      organizer_id:
+        type: integer
+      title:
+        type: string
+      total_seats:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  internal_handlers.CreateEventRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      location:
+        type: string
+      title:
+        type: string
+      total_seats:
+        minimum: 1
+        type: integer
+    required:
+    - date
+    - location
+    - title
+    - total_seats
+    type: object
+host: localhost:3003
+info:
+  contact: {}
+  description: This is the event service.
+  title: Event Service API
+  version: "1.0"
+paths:
+  /events:
+    post:
+      consumes:
+      - application/json
+      description: Create a new event (Organizer only)
+      parameters:
+      - description: Event Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.CreateEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_Antiaastu_distributed-event-ticketing_event-service_internal_models.Event'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new event
+      tags:
+      - events
+swagger: "2.0"

@@ -1,0 +1,82 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the booking service.",
+        "title": "Booking Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:3002",
+    "basePath": "/api",
+    "paths": {
+        "/bookings": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Book tickets for an event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookings"
+                ],
+                "summary": "Create a booking",
+                "parameters": [
+                    {
+                        "description": "Booking Input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateBookingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.CreateBookingRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "event_id",
+                "seat_count"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "event_id": {
+                    "type": "integer"
+                },
+                "seat_count": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        }
+    }
+}

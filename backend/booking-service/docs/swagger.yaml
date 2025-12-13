@@ -1,0 +1,54 @@
+basePath: /api
+definitions:
+  handlers.CreateBookingRequest:
+    properties:
+      amount:
+        type: number
+      event_id:
+        type: integer
+      seat_count:
+        minimum: 1
+        type: integer
+    required:
+    - amount
+    - event_id
+    - seat_count
+    type: object
+host: localhost:3002
+info:
+  contact: {}
+  description: This is the booking service.
+  title: Booking Service API
+  version: "1.0"
+paths:
+  /bookings:
+    post:
+      consumes:
+      - application/json
+      description: Book tickets for an event
+      parameters:
+      - description: Booking Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateBookingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a booking
+      tags:
+      - bookings
+swagger: "2.0"

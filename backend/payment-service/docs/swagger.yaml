@@ -1,0 +1,87 @@
+basePath: /api
+definitions:
+  handlers.InitializePaymentRequest:
+    properties:
+      amount:
+        type: number
+      booking_id:
+        type: integer
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - amount
+    - booking_id
+    - email
+    - first_name
+    - last_name
+    - user_id
+    type: object
+host: localhost:3004
+info:
+  contact: {}
+  description: This is the payment service.
+  title: Payment Service API
+  version: "1.0"
+paths:
+  /payments/initialize:
+    post:
+      consumes:
+      - application/json
+      description: Initialize a payment with Chapa
+      parameters:
+      - description: Payment Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.InitializePaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Initialize Payment
+      tags:
+      - payments
+  /payments/verify/{tx_ref}:
+    get:
+      consumes:
+      - application/json
+      description: Verify a payment transaction
+      parameters:
+      - description: Transaction Reference
+        in: path
+        name: tx_ref
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verify Payment
+      tags:
+      - payments
+swagger: "2.0"

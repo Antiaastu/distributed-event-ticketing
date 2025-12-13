@@ -1,0 +1,42 @@
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# Dependencies
+vendor/
+
+# Binaries and Builds
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+build/
+out/
+main
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+tmp/
+
+# Docker
+docker-compose.override.yml
+
+# Certificates and Keys
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
