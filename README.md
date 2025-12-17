@@ -14,6 +14,65 @@ The Distributed Event Ticketing System allows users to browse events, select spe
 - **Resilient State Management**: Persists booking flows across page refreshes.
 - **Automated Notifications**: Email notifications for booking confirmations (simulated).
 
+## 🏗️ System Architecture
+
+```mermaid
+graph LR
+    %% Styles matching the reference image
+    classDef frontend fill:#222,stroke:#d97706,stroke-width:2px,color:#fff,rx:5,ry:5;
+    classDef service fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#fff,rx:5,ry:5;
+    classDef database fill:#222,stroke:#d97706,stroke-width:2px,color:#fff,rx:5,ry:5;
+    classDef messaging fill:#222,stroke:#d97706,stroke-width:2px,color:#fff,rx:5,ry:5;
+
+    %% Left Column: Frontend
+    subgraph Frontend_Group [Frontend]
+        direction TB
+        NextJS(Next.js Web App):::frontend
+    end
+
+    %% Middle Column: Microservices (Ordered to minimize crossing)
+    subgraph Services_Group [Microservices]
+        direction TB
+        Auth(Auth Service):::service
+        Event(Event Service):::service
+        Booking(Booking Service):::service
+        Payment(Payment Service):::service
+        Notif(Notification Service):::service
+    end
+
+    %% Right Column: Databases & Messaging (Aligned with Services)
+    subgraph Data_Group [Data & Messaging]
+        direction TB
+        AuthDB[(Auth DB)]:::database
+        EventDB[(Event DB)]:::database
+        Redis[(Redis Cache)]:::database
+        BookingDB[(Booking DB)]:::database
+        RabbitMQ[[RabbitMQ]]:::messaging
+    end
+
+    %% Connections: Frontend -> Services
+    NextJS -->|Login/Register| Auth
+    NextJS -->|Browse Events| Event
+    NextJS -->|Book Tickets| Booking
+
+    %% Connections: Services -> Databases (Horizontal)
+    Auth -->|User Data| AuthDB
+    Event -->|Event Data| EventDB
+    Event -->|Seat Locking| Redis
+    Booking -->|Store Bookings| BookingDB
+
+    %% Connections: Inter-service (Vertical)
+    Booking -->|Validate/Lock| Event
+    Booking -->|Process Payment| Payment
+
+    %% Connections: Messaging (Fan-in/Fan-out)
+    Auth -->|User Registered| RabbitMQ
+    Booking -->|Booking Created| RabbitMQ
+    Payment -->|Payment Success| RabbitMQ
+    RabbitMQ -->|Send Email| Notif
+    RabbitMQ -->|Update Status| Booking
+```
+
 ## 🛠️ Tech Stack
 
 ### Backend
