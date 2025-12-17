@@ -26,7 +26,7 @@ export function VerifyEmailPage({ onVerified, onLoginClick }: VerifyEmailPagePro
       }
 
       try {
-        const response = await fetch('http://localhost:3001/api/auth/verify-email', {
+        const response = await fetch('http://localhost:8080/api/auth/verify-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ export function VerifyEmailPage({ onVerified, onLoginClick }: VerifyEmailPagePro
 
           // Check user role and approval status
           try {
-            const meResponse = await fetch('http://localhost:3001/api/auth/me', {
+            const meResponse = await fetch('http://localhost:8080/api/auth/me', {
               headers: {
                 'Authorization': `Bearer ${data.access_token}`
               }

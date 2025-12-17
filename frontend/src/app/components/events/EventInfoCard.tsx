@@ -7,7 +7,7 @@ interface EventInfoCardProps {
 
 export function EventInfoCard({ event }: EventInfoCardProps) {
   return (
-    <div className="bg-gradient-to-br from-[var(--primary)]/10 via-[var(--card)] to-[var(--accent)]/10 border border-[var(--border)] rounded-2xl p-6 shadow-xl overflow-hidden relative">
+    <div className="bg-linear-to-br from-[var(--primary)]/10 via-[var(--card)] to-[var(--accent)]/10 border border-[var(--border)] rounded-2xl p-6 shadow-xl overflow-hidden relative">
       {/* Decorative element */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] opacity-10 rounded-full -mr-16 -mt-16"></div>
       

@@ -24,7 +24,7 @@ export function SecuritySettings() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch('http://localhost:3001/api/auth/change-password', {
+      const response = await fetch('http://localhost:8080/api/auth/change-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

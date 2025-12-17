@@ -71,7 +71,7 @@ export function MyTickets({ bookings }: MyTicketsProps) {
 
                   <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <button 
-                      onClick={() => window.open(`http://localhost:3005/api/notifications/tickets/${booking.id}/pdf`, '_blank')}
+                      onClick={() => window.open(`http://localhost:8080/api/notifications/tickets/${booking.id}/pdf`, '_blank')}
                       className="px-4 py-2 bg-[var(--secondary)] hover:bg-[var(--muted)] rounded-xl transition-all flex items-center justify-center gap-2 border border-[var(--border)]"
                     >
                       <Download className="w-4 h-4" />

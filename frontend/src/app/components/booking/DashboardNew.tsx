@@ -59,7 +59,7 @@ export function DashboardNew({ userEmail, event, ticketClass, onCheckout, onLogo
 
       try {
         const token = localStorage.getItem('access_token');
-        const response = await fetch(`http://localhost:3002/api/bookings/event/${event.id}/seats`, {
+        const response = await fetch(`http://localhost:8080/api/bookings/event/${event.id}/seats`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

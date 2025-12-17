@@ -56,7 +56,7 @@ export function AdminDashboard({
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = 'http://localhost:3001/api/auth';
+  const API_URL = 'http://localhost:8080/api/auth';
 
   useEffect(() => {
     const storedTab = localStorage.getItem('adminActiveTab');

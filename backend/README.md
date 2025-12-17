@@ -37,19 +37,24 @@ This will start all microservices along with PostgreSQL, Redis, and RabbitMQ.
 docker-compose up --build
 ```
 
-### Service Endpoints (Default Ports)
-| Service | Port | Description |
-|---------|------|-------------|
-| Auth Service | 3001 | User authentication |
-| Booking Service | 3002 | Booking management |
-| Event Service | 3003 | Events & Seats |
-| Payment Service | 3004 | Payment processing |
-| Notification Service | 3005 | Background consumer |
+### Service Endpoints (via API Gateway)
+All services are now accessed via the Nginx API Gateway on port **8080**.
+
+| Service | Path Prefix | Description |
+|---------|-------------|-------------|
+| Auth Service | `/api/auth` | User authentication |
+| Booking Service | `/api/bookings` | Booking management |
+| Event Service | `/api/events` | Events & Seats |
+| Payment Service | `/api/payments` | Payment processing |
+| Notification Service | `/api/notifications` | PDF Tickets & Notifications |
+
+
 
 ## 📂 Directory Structure
 
 ```
 backend/
+├── nginx/              # Nginx configuration
 ├── auth-service/       # Go module for Auth
 ├── booking-service/    # Go module for Booking
 ├── event-service/      # Go module for Events

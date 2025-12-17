@@ -87,7 +87,7 @@ export function CheckoutSummaryNew({
 
       const seatCount = ticketDetails ? ticketDetails.quantity : (selectedSeats ? selectedSeats.length : 0);
 
-      const bookingResponse = await fetch('http://localhost:3002/api/bookings', {
+      const bookingResponse = await fetch('http://localhost:8080/api/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ export function CheckoutSummaryNew({
       }
 
       // 2. Initialize Payment
-      const response = await fetch('http://localhost:3004/api/payments/initialize', {
+      const response = await fetch('http://localhost:8080/api/payments/initialize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

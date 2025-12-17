@@ -30,6 +30,12 @@ graph LR
         NextJS(Next.js Web App):::frontend
     end
 
+    %% API Gateway
+    subgraph Gateway_Group [API Gateway]
+        direction TB
+        Nginx(Nginx Reverse Proxy):::service
+    end
+
     %% Middle Column: Microservices (Ordered to minimize crossing)
     subgraph Services_Group [Microservices]
         direction TB
@@ -50,10 +56,15 @@ graph LR
         RabbitMQ[[RabbitMQ]]:::messaging
     end
 
-    %% Connections: Frontend -> Services
-    NextJS -->|Login/Register| Auth
-    NextJS -->|Browse Events| Event
-    NextJS -->|Book Tickets| Booking
+    %% Connections: Frontend -> Gateway
+    NextJS -->|HTTP Requests| Nginx
+
+    %% Connections: Gateway -> Services
+    Nginx -->|/api/auth| Auth
+    Nginx -->|/api/events| Event
+    Nginx -->|/api/bookings| Booking
+    Nginx -->|/api/payments| Payment
+    Nginx -->|/api/notifications| Notif
 
     %% Connections: Services -> Databases (Horizontal)
     Auth -->|User Data| AuthDB
@@ -69,7 +80,9 @@ graph LR
     Auth -->|User Registered| RabbitMQ
     Booking -->|Booking Created| RabbitMQ
     Payment -->|Payment Success| RabbitMQ
-    RabbitMQ -->|Send Email| Notif
+    
+    %% Increased length to avoid overlap
+    RabbitMQ --->|Send Email| Notif
     RabbitMQ -->|Update Status| Booking
 ```
 
@@ -78,6 +91,7 @@ graph LR
 ### Backend
 - **Language**: Go (Golang)
 - **Framework**: Gin Web Framework
+- **Gateway**: Nginx (Reverse Proxy)
 - **Databases**: PostgreSQL (Primary), Redis (Caching & Locking)
 - **Message Broker**: RabbitMQ (Async communication)
 - **Containerization**: Docker & Docker Compose

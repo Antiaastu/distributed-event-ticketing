@@ -52,15 +52,15 @@ export function OrganizerDashboard({ userEmail, onLogout }: OrganizerDashboardPr
   const [loadingSales, setLoadingSales] = useState(false);
   const [activeSection, setActiveSection] = useState('dashboard');
 
-  const EVENT_API_URL = 'http://localhost:3003/api';
-  const BOOKING_API_URL = 'http://localhost:3002/api';
+  const EVENT_API_URL = 'http://localhost:8080/api/events';
+  const BOOKING_API_URL = 'http://localhost:8080/api/bookings';
 
   const [totalBooked, setTotalBooked] = useState(0);
 
   const fetchEvents = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const res = await fetch(`${EVENT_API_URL}/events/my`, {
+      const res = await fetch(`${EVENT_API_URL}/my`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -107,7 +107,7 @@ export function OrganizerDashboard({ userEmail, onLogout }: OrganizerDashboardPr
   const handleCreateEvent = async (eventData: any) => {
     try {
       const token = localStorage.getItem('access_token');
-      const res = await fetch(`${EVENT_API_URL}/events`, {
+      const res = await fetch(`${EVENT_API_URL}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export function OrganizerDashboard({ userEmail, onLogout }: OrganizerDashboardPr
   const handleUpdateEvent = async (eventId: number, updates: any) => {
     try {
       const token = localStorage.getItem('access_token');
-      const res = await fetch(`${EVENT_API_URL}/events/${eventId}`, {
+      const res = await fetch(`${EVENT_API_URL}/${eventId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

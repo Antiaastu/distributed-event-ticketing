@@ -65,7 +65,16 @@ frontend/src/
 
 ## ⚙️ Configuration
 
-The application connects to the backend services. Ensure the backend is running on the expected ports (default: localhost). If your backend is hosted elsewhere, update the API base URLs in the service files or environment variables.
+The application connects to the backend services via the **API Gateway**.
+
+- **API Gateway URL**: `http://localhost:8080`
+- **Endpoints**:
+  - Auth: `/api/auth`
+  - Events: `/api/events`
+  - Bookings: `/api/bookings`
+  - Payments: `/api/payments`
+
+Ensure the backend (Docker Compose) is running, which will start the Nginx gateway on port 8080.
 
 ## 🎨 UI/UX Highlights
 

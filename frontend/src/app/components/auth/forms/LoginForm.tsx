@@ -20,7 +20,7 @@ export function LoginForm({ onLogin, onForgotPassword }: LoginFormProps) {
   const handleReapply = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/auth/reapply', {
+      const response = await fetch('http://localhost:8080/api/auth/reapply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -57,7 +57,7 @@ export function LoginForm({ onLogin, onForgotPassword }: LoginFormProps) {
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://localhost:3001/api/auth/login', {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

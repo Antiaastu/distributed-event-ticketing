@@ -54,7 +54,7 @@ export function SignupForm({ onSwitchToLogin, onSuccess }: SignupFormProps) {
         formData.append('document', document);
       }
 
-      const response = await fetch('http://localhost:3001/api/auth/register', {
+      const response = await fetch('http://localhost:8080/api/auth/register', {
         method: 'POST',
         body: formData,
       });

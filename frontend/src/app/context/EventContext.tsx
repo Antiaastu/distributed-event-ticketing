@@ -95,7 +95,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch('http://localhost:3003/api/events');
+      const response = await fetch('http://localhost:8080/api/events');
       if (response.ok) {
         const data = await response.json();
         const mappedEvents = data.map((e: any) => ({
@@ -142,8 +142,8 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const endpoint = currentUser.role === 'admin' 
-        ? 'http://localhost:3002/api/bookings/all'
-        : 'http://localhost:3002/api/bookings/user';
+        ? 'http://localhost:8080/api/bookings/all'
+        : 'http://localhost:8080/api/bookings/user';
 
       const response = await fetch(endpoint, {
         headers: {
@@ -201,7 +201,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         seats_vvip: eventData.seatsVVIP,
       };
 
-      const response = await fetch('http://localhost:3003/api/events', {
+      const response = await fetch('http://localhost:8080/api/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(backendEvent),
@@ -217,7 +217,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
   const deleteEvent = async (eventId: string) => {
     try {
-      const response = await fetch(`http://localhost:3003/api/events/${eventId}`, {
+      const response = await fetch(`http://localhost:8080/api/events/${eventId}`, {
         method: 'DELETE',
       });
       

@@ -21,7 +21,7 @@ function PaymentSuccessContent() {
       }
 
       try {
-        const response = await fetch(`http://localhost:3004/api/payments/verify/${txRef}`);
+        const response = await fetch(`http://localhost:8080/api/payments/verify/${txRef}`);
         if (response.ok) {
           const data = await response.json();
           if (data.payment && data.payment.status === 'success') {

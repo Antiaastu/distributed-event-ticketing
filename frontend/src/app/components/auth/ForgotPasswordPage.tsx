@@ -32,7 +32,7 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
 
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/auth/forgot-password', {
+      const response = await fetch('http://localhost:8080/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -67,7 +67,7 @@ export function ForgotPasswordPage({ onBackToLogin }: ForgotPasswordPageProps) {
 
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/auth/reset-password', {
+      const response = await fetch('http://localhost:8080/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code, new_password: newPassword }),
