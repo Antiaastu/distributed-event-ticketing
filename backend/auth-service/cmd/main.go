@@ -29,6 +29,9 @@ func main() {
 	authService := service.NewAuthService(userRepo)
 	authHandler := handlers.NewAuthHandler(authService)
 
+	// Start Audit Consumer
+	messaging.StartAuditConsumer(userRepo)
+
 	r := gin.Default()
 
 	// CORS handled by Nginx Gateway
@@ -61,6 +64,7 @@ func main() {
 			adminRoutes.POST("/reject", authHandler.RejectOrganizer)
 			adminRoutes.GET("/organizers/pending", authHandler.GetPendingOrganizers)
 			adminRoutes.GET("/users", authHandler.GetAllUsers)
+			adminRoutes.DELETE("/users", authHandler.DeleteUser)
 			adminRoutes.GET("/audit-logs", authHandler.GetAuditLogs)
 		}
 	}

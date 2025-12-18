@@ -43,6 +43,19 @@ func ConnectRabbitMQ(bookingService BookingConfirmer) {
 		log.Fatal("Failed to declare a queue: ", err)
 	}
 
+	// Declare audit_logs queue
+	_, err = ch.QueueDeclare(
+		"audit_logs", // name
+		true,         // durable
+		false,        // delete when unused
+		false,        // exclusive
+		false,        // no-wait
+		nil,          // arguments
+	)
+	if err != nil {
+		log.Fatal("Failed to declare audit_logs queue: ", err)
+	}
+
 	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer

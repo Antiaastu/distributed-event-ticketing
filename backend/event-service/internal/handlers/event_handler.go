@@ -212,8 +212,9 @@ func (h *EventHandler) UpdateEvent(c *gin.Context) {
 }
 
 type LockSeatsRequest struct {
-	Count       int    `json:"count" binding:"required,min=1"`
-	TicketClass string `json:"ticket_class"` // "normal", "vip", "vvip"
+	Count       int      `json:"count" binding:"required,min=1"`
+	TicketClass string   `json:"ticket_class"` // "normal", "vip", "vvip"
+	SeatIDs     []string `json:"seat_ids"`
 }
 
 func (h *EventHandler) LockSeats(c *gin.Context) {
@@ -235,16 +236,49 @@ func (h *EventHandler) LockSeats(c *gin.Context) {
 		req.TicketClass = "normal"
 	}
 
-	success, err := h.service.LockSeats(uint(eventID), req.Count, req.TicketClass)
+	success, err := h.service.LockSeats(uint(eventID), req.Count, req.TicketClass, req.SeatIDs)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to lock seats"})
 		return
 	}
 
 	if !success {
-		c.JSON(http.StatusConflict, gin.H{"error": "Not enough seats available"})
+		c.JSON(http.StatusConflict, gin.H{"error": "Seats not available or already locked"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Seats locked successfully"})
+}
+
+type UnlockSeatsRequest struct {
+	Count       int      `json:"count" binding:"required,min=1"`
+	TicketClass string   `json:"ticket_class"`
+	SeatIDs     []string `json:"seat_ids"`
+}
+
+func (h *EventHandler) UnlockSeats(c *gin.Context) {
+	eventIDStr := c.Param("id")
+	eventID, err := strconv.ParseUint(eventIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event ID"})
+		return
+	}
+
+	var req UnlockSeatsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.TicketClass == "" {
+		req.TicketClass = "normal"
+	}
+
+	err = h.service.UnlockSeats(uint(eventID), req.Count, req.TicketClass, req.SeatIDs)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unlock seats"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Seats unlocked successfully"})
 }

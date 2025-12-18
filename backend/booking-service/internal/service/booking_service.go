@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/Antiaastu/distributed-event-ticketing/booking-service/internal/messaging"
 	"github.com/Antiaastu/distributed-event-ticketing/booking-service/internal/models"
@@ -22,6 +23,7 @@ type BookingService interface {
 	GetUserBookings(userID uint) ([]models.Booking, error)
 	GetBookingByID(bookingID uint) (*models.Booking, error)
 	GetAllBookings() ([]models.Booking, error)
+	CancelStaleBookings() error
 }
 
 type bookingService struct {
@@ -30,6 +32,58 @@ type bookingService struct {
 
 func NewBookingService(repo repository.BookingRepository) BookingService {
 	return &bookingService{repo: repo}
+}
+
+func (s *bookingService) CancelStaleBookings() error {
+	// Find bookings pending for > 15 minutes
+	olderThan := time.Now().Add(-15 * time.Minute)
+	bookings, err := s.repo.GetStalePendingBookings(olderThan)
+	if err != nil {
+		return err
+	}
+
+	eventServiceURL := os.Getenv("EVENT_SERVICE_URL")
+	if eventServiceURL == "" {
+		eventServiceURL = "http://localhost:3003"
+	}
+
+	for _, booking := range bookings {
+		fmt.Printf("Cancelling stale booking: %d\n", booking.ID)
+
+		// Unlock seats in Event Service
+		var seatList []struct {
+			ID string `json:"id"`
+		}
+		var seatIDs []string
+		if err := json.Unmarshal([]byte(booking.Seats), &seatList); err == nil {
+			for _, seat := range seatList {
+				seatIDs = append(seatIDs, seat.ID)
+			}
+		}
+
+		unlockReq := map[string]interface{}{
+			"count":    booking.SeatCount,
+			"seat_ids": seatIDs,
+		}
+		unlockBody, _ := json.Marshal(unlockReq)
+
+		// We don't strictly check error here, just log it, as we want to proceed with cancellation
+		resp, err := http.Post(fmt.Sprintf("%s/api/events/%d/unlock", eventServiceURL, booking.EventID), "application/json", bytes.NewBuffer(unlockBody))
+		if err != nil {
+			fmt.Printf("Failed to unlock seats for booking %d: %v\n", booking.ID, err)
+		} else {
+			resp.Body.Close()
+		}
+
+		// Update status to Cancelled
+		if err := s.repo.UpdateBookingStatus(booking.ID, models.BookingStatusCancelled); err != nil {
+			fmt.Printf("Failed to update booking status %d: %v\n", booking.ID, err)
+		} else {
+			// Audit Log
+			messaging.PublishAuditLog(booking.UserID, "CANCEL_BOOKING", fmt.Sprintf("Cancelled stale booking %d", booking.ID))
+		}
+	}
+	return nil
 }
 
 func (s *bookingService) GetBookingByID(bookingID uint) (*models.Booking, error) {
@@ -91,11 +145,15 @@ func (s *bookingService) CreateBooking(userID, eventID uint, seatCount int, amou
 	var seatList []struct {
 		ID string `json:"id"`
 	}
+	var seatIDs []string
 	if err := json.Unmarshal([]byte(seats), &seatList); err == nil && len(seatList) > 0 {
 		if strings.HasPrefix(seatList[0].ID, "vvip") {
 			ticketClass = "vvip"
 		} else if strings.HasPrefix(seatList[0].ID, "vip") {
 			ticketClass = "vip"
+		}
+		for _, seat := range seatList {
+			seatIDs = append(seatIDs, seat.ID)
 		}
 	}
 
@@ -108,6 +166,7 @@ func (s *bookingService) CreateBooking(userID, eventID uint, seatCount int, amou
 	lockReq := map[string]interface{}{
 		"count":        seatCount,
 		"ticket_class": ticketClass,
+		"seat_ids":     seatIDs,
 	}
 	lockBody, _ := json.Marshal(lockReq)
 
@@ -132,6 +191,9 @@ func (s *bookingService) CreateBooking(userID, eventID uint, seatCount int, amou
 		return nil, err
 	}
 	fmt.Println("Booking created successfully in DB")
+
+	// Audit Log
+	messaging.PublishAuditLog(userID, "CREATE_BOOKING", fmt.Sprintf("Created booking %d for event %d", booking.ID, eventID))
 
 	return booking, nil
 }
@@ -161,6 +223,9 @@ func (s *bookingService) ConfirmBooking(bookingID uint) error {
 	if err := messaging.PublishBookingConfirmed(event); err != nil {
 		fmt.Printf("Failed to publish booking confirmed event: %v\n", err)
 	}
+
+	// Audit Log
+	messaging.PublishAuditLog(booking.UserID, "CONFIRM_BOOKING", fmt.Sprintf("Confirmed booking %d", booking.ID))
 
 	return nil
 }

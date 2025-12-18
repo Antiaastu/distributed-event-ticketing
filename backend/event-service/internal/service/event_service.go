@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/Antiaastu/distributed-event-ticketing/event-service/internal/messaging"
 	"github.com/Antiaastu/distributed-event-ticketing/event-service/internal/models"
 	"github.com/Antiaastu/distributed-event-ticketing/event-service/internal/repository"
 )
 
 type EventService interface {
 	CreateEvent(event *models.Event) error
-	LockSeats(eventID uint, count int, ticketClass string) (bool, error)
+	LockSeats(eventID uint, count int, ticketClass string, seatIDs []string) (bool, error)
+	UnlockSeats(eventID uint, count int, ticketClass string, seatIDs []string) error
 	GetAllEvents() ([]models.Event, error)
 	GetEventsByOrganizer(organizerID uint) ([]models.Event, error)
 	GetEventByID(eventID uint) (*models.Event, error)
@@ -80,7 +82,14 @@ func (s *eventService) CreateEvent(event *models.Event) error {
 	}
 
 	// Initialize seats in Redis
-	return s.repo.InitializeSeats(event)
+	if err := s.repo.InitializeSeats(event); err != nil {
+		return err
+	}
+
+	// Audit Log
+	messaging.PublishAuditLog(event.OrganizerID, "CREATE_EVENT", "Created event: "+event.Title)
+
+	return nil
 }
 
 func (s *eventService) GetAllEvents() ([]models.Event, error) {
@@ -140,6 +149,10 @@ func (s *eventService) UpdateEvent(eventID uint, organizerID uint, updates map[s
 	return event, nil
 }
 
-func (s *eventService) LockSeats(eventID uint, count int, ticketClass string) (bool, error) {
-	return s.repo.LockSeats(eventID, count, ticketClass)
+func (s *eventService) LockSeats(eventID uint, count int, ticketClass string, seatIDs []string) (bool, error) {
+	return s.repo.LockSeats(eventID, count, ticketClass, seatIDs)
+}
+
+func (s *eventService) UnlockSeats(eventID uint, count int, ticketClass string, seatIDs []string) error {
+	return s.repo.UnlockSeats(eventID, count, ticketClass, seatIDs)
 }

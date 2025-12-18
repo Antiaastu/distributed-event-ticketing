@@ -14,6 +14,7 @@ type UserRepository interface {
 	UpdateUser(user *models.User) error
 	GetPendingOrganizers() ([]models.User, error)
 	GetAllUsers() ([]models.User, error)
+	DeleteUser(id uint) error
 	CreateAuditLog(log *models.AuditLog) error
 	GetAuditLogs() ([]models.AuditLog, error)
 }
@@ -22,6 +23,10 @@ type userRepository struct{}
 
 func NewUserRepository() UserRepository {
 	return &userRepository{}
+}
+
+func (r *userRepository) DeleteUser(id uint) error {
+	return database.DB.Delete(&models.User{}, id).Error
 }
 
 func (r *userRepository) CreateUser(user *models.User) error {

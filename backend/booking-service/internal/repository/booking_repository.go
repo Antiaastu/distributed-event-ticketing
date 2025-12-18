@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/Antiaastu/distributed-event-ticketing/booking-service/internal/database"
 	"github.com/Antiaastu/distributed-event-ticketing/booking-service/internal/models"
 )
@@ -13,12 +15,19 @@ type BookingRepository interface {
 	GetBookingsByUserID(userID uint) ([]models.Booking, error)
 	GetBookingByID(id uint) (*models.Booking, error)
 	GetAllBookings() ([]models.Booking, error)
+	GetStalePendingBookings(olderThan time.Time) ([]models.Booking, error)
 }
 
 type bookingRepository struct{}
 
 func NewBookingRepository() BookingRepository {
 	return &bookingRepository{}
+}
+
+func (r *bookingRepository) GetStalePendingBookings(olderThan time.Time) ([]models.Booking, error) {
+	var bookings []models.Booking
+	err := database.DB.Where("status = ? AND created_at < ?", models.BookingStatusPending, olderThan).Find(&bookings).Error
+	return bookings, err
 }
 
 func (r *bookingRepository) CreateBooking(booking *models.Booking) error {

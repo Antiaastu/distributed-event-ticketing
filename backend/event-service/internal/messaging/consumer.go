@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/Antiaastu/distributed-event-ticketing/event-service/internal/service"
 	"github.com/streadway/amqp"
 )
 
@@ -19,7 +18,11 @@ type BookingConfirmedEvent struct {
 	Seats     string  `json:"seats"`
 }
 
-func StartConsumer(eventService service.EventService) {
+type EventUpdater interface {
+	UpdateEventSeats(eventID uint, seatsBooked int, seatsJSON string) error
+}
+
+func StartConsumer(eventService EventUpdater) {
 	connStr := fmt.Sprintf("amqp://%s:%s@%s:%s/",
 		os.Getenv("RABBITMQ_USER"),
 		os.Getenv("RABBITMQ_PASS"),

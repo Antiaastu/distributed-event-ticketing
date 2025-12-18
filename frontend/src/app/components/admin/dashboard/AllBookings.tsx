@@ -5,6 +5,8 @@ interface AllBookingsProps {
 }
 
 export function AllBookings({ bookings }: AllBookingsProps) {
+  const confirmedBookings = bookings.filter(booking => booking.status === 'confirmed');
+
   return (
     <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 sm:p-6">
       <h4 className="mb-4">All Bookings</h4>
@@ -21,7 +23,7 @@ export function AllBookings({ bookings }: AllBookingsProps) {
             </tr>
           </thead>
           <tbody>
-            {bookings.map(booking => (
+            {confirmedBookings.map(booking => (
               <tr key={booking.id} className="border-b border-[var(--border)] last:border-0">
                 <td className="px-4 py-3 text-sm font-mono truncate max-w-[100px]">
                   {booking.id.substring(0, 8)}...

@@ -436,6 +436,41 @@ func (h *AuthHandler) GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+type DeleteUserRequest struct {
+	UserID uint `json:"user_id" binding:"required"`
+}
+
+// @Summary Delete User
+// @Description Delete a user account (Admin only)
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param input body DeleteUserRequest true "Delete Input"
+// @Success 200 {object} map[string]interface{}
+// @Failure 403 {object} map[string]interface{}
+// @Router /auth/admin/users [delete]
+func (h *AuthHandler) DeleteUser(c *gin.Context) {
+	role, exists := c.Get("role")
+	if !exists || role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Requires Admin role"})
+		return
+	}
+
+	var req DeleteUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.service.DeleteUser(req.UserID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+}
+
 type RejectOrganizerRequest struct {
 	UserID uint `json:"user_id" binding:"required"`
 }

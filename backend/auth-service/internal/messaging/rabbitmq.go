@@ -30,7 +30,7 @@ func ConnectRabbitMQ() {
 	}
 
 	// Declare queues
-	queues := []string{"email_verification", "password_reset"}
+	queues := []string{"email_verification", "password_reset", "audit_logs"}
 	for _, q := range queues {
 		_, err = Channel.QueueDeclare(
 			q,     // name

@@ -29,6 +29,7 @@ type AuthService interface {
 	PromoteToOrganizer(userID uint) error
 	GetPendingOrganizers() ([]models.User, error)
 	GetAllUsers() ([]models.User, error)
+	DeleteUser(userID uint) error
 	RejectOrganizer(userID uint) error
 	GetAuditLogs() ([]models.AuditLog, error)
 	ReapplyOrganizer(email string) error
@@ -40,6 +41,27 @@ type authService struct {
 
 func NewAuthService(repo repository.UserRepository) AuthService {
 	return &authService{repo: repo}
+}
+
+func (s *authService) DeleteUser(userID uint) error {
+	user, err := s.repo.FindByID(userID)
+	if err != nil {
+		return err
+	}
+
+	if err := s.repo.DeleteUser(userID); err != nil {
+		return err
+	}
+
+	// Log audit
+	s.repo.CreateAuditLog(&models.AuditLog{
+		UserID:    userID,
+		Action:    "DELETE_USER",
+		Details:   fmt.Sprintf("User %s deleted by admin", user.Email),
+		CreatedAt: time.Now(),
+	})
+
+	return nil
 }
 
 func (s *authService) GetPendingOrganizers() ([]models.User, error) {

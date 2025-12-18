@@ -1,3 +1,5 @@
+import { Trash2 } from 'lucide-react';
+
 interface User {
   id: number;
   email: string;
@@ -8,9 +10,10 @@ interface User {
 
 interface AllUsersProps {
   users: User[];
+  onDeleteUser: (userId: number) => void;
 }
 
-export function AllUsers({ users }: AllUsersProps) {
+export function AllUsers({ users, onDeleteUser }: AllUsersProps) {
   return (
     <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 sm:p-6">
       <h4 className="mb-4">All Users</h4>
@@ -23,6 +26,7 @@ export function AllUsers({ users }: AllUsersProps) {
               <th className="px-4 py-3 text-left text-sm">Role</th>
               <th className="px-4 py-3 text-left text-sm">Status</th>
               <th className="px-4 py-3 text-left text-sm">Joined Date</th>
+              <th className="px-4 py-3 text-left text-sm">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -44,6 +48,15 @@ export function AllUsers({ users }: AllUsersProps) {
                 </td>
                 <td className="px-4 py-3 text-sm text-[var(--muted-foreground)]">
                   {new Date(user.created_at).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-3 text-sm">
+                  <button
+                    onClick={() => onDeleteUser(user.id)}
+                    className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                    title="Delete User"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </td>
               </tr>
             ))}

@@ -143,6 +143,30 @@ export function AdminDashboard({
     }
   };
 
+  const handleDeleteUser = async (userId: number) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(`${API_URL}/admin/users`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ user_id: userId })
+      });
+
+      if (res.ok) {
+        fetchAdminData(); // Refresh data
+      } else {
+        console.error('Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  };
+
   const enrichedBookings = bookings.map(booking => {
     const user = allUsers.find(u => u.id.toString() === booking.userId);
     return {
@@ -151,8 +175,9 @@ export function AdminDashboard({
     };
   });
 
-  const totalRevenue = enrichedBookings.reduce((sum, booking) => sum + booking.totalAmount, 0);
-  const totalTicketsSold = enrichedBookings.reduce((sum, booking) => sum + booking.seats.length, 0);
+  const confirmedBookings = enrichedBookings.filter(b => b.status === 'confirmed');
+  const totalRevenue = confirmedBookings.reduce((sum, booking) => sum + booking.totalAmount, 0);
+  const totalTicketsSold = confirmedBookings.reduce((sum, booking) => sum + booking.seats.length, 0);
 
   if (isRestoring) return null;
 
@@ -243,7 +268,7 @@ export function AdminDashboard({
               )}
 
               {activeTab === 'users' && (
-                <AllUsers users={allUsers} />
+                <AllUsers users={allUsers} onDeleteUser={handleDeleteUser} />
               )}
 
               {activeTab === 'audit-logs' && (

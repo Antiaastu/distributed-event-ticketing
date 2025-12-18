@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 import { OrderSummary } from './checkout/OrderSummary';
 import { EventDetails } from './checkout/EventDetails';
 import { PaymentForm } from './checkout/PaymentForm';
@@ -103,7 +104,8 @@ export function CheckoutSummaryNew({
 
       if (!bookingResponse.ok) {
         const errorData = await bookingResponse.json();
-        console.error('Booking creation failed:', errorData);
+        // console.error('Booking creation failed:', errorData);
+        toast.error(errorData.error || 'Booking failed. Please try again.');
         setIsProcessing(false);
         return;
       }
@@ -140,10 +142,12 @@ export function CheckoutSummaryNew({
       } else {
         const errorData = await response.json();
         console.error('Payment initialization failed:', errorData);
+        toast.error(errorData.error || 'Payment initialization failed.');
         setIsProcessing(false);
       }
     } catch (error) {
       console.error('Payment error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
       setIsProcessing(false);
     }
   };

@@ -127,7 +127,7 @@ event_ticketing/
 
 ### Prerequisites
 - **Docker Desktop** (for running backend services and databases)
-- **Node.js** (v18+ recommended)
+- **Node.js** (v22+ recommended)
 - **Go** (v1.24+ if running services locally without Docker)
 
 ### 1. Start the Backend

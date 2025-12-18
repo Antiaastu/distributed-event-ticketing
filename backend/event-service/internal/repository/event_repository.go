@@ -11,7 +11,8 @@ import (
 type EventRepository interface {
 	CreateEvent(event *models.Event) error
 	InitializeSeats(event *models.Event) error
-	LockSeats(eventID uint, count int, ticketClass string) (bool, error)
+	LockSeats(eventID uint, count int, ticketClass string, seatIDs []string) (bool, error)
+	UnlockSeats(eventID uint, count int, ticketClass string, seatIDs []string) error
 	GetAllEvents() ([]models.Event, error)
 	GetEventsByOrganizerID(organizerID uint) ([]models.Event, error)
 	GetEventByID(eventID uint) (*models.Event, error)
@@ -74,14 +75,58 @@ func (r *eventRepository) InitializeSeats(event *models.Event) error {
 	return err
 }
 
-func (r *eventRepository) LockSeats(eventID uint, count int, ticketClass string) (bool, error) {
+func (r *eventRepository) LockSeats(eventID uint, count int, ticketClass string, seatIDs []string) (bool, error) {
 	ctx := context.Background()
 	key := fmt.Sprintf("event:%d:seats", eventID)
 	if ticketClass != "" {
 		key = fmt.Sprintf("event:%d:seats:%s", eventID, ticketClass)
 	}
 
-	// Use a Lua script to ensure atomicity: check if enough seats, then decr
+	// If specific seats are provided, check and lock them
+	if len(seatIDs) > 0 {
+		// Lua script to check specific seat locks and available count
+		script := `
+			local countKey = KEYS[1]
+			local decrAmount = tonumber(ARGV[1])
+			local ttl = tonumber(ARGV[2])
+			
+			-- Check if any seat is already locked
+			for i = 3, #ARGV do
+				if redis.call("EXISTS", ARGV[i]) == 1 then
+					return 0 -- Fail: Seat locked
+				end
+			end
+
+			-- Check available count
+			local current = tonumber(redis.call("GET", countKey))
+			if current == nil then return 0 end
+			if current < decrAmount then return 0 end -- Fail: Not enough seats
+
+			-- Lock seats
+			for i = 3, #ARGV do
+				redis.call("SET", ARGV[i], "locked", "EX", ttl)
+			end
+
+			-- Decrement count
+			redis.call("DECRBY", countKey, decrAmount)
+
+			return 1
+		`
+
+		// Prepare args: count, ttl, seatKey1, seatKey2...
+		args := []interface{}{count, 900} // 900s = 15 mins
+		for _, seatID := range seatIDs {
+			args = append(args, fmt.Sprintf("event:%d:seat:%s", eventID, seatID))
+		}
+
+		result, err := database.RedisClient.Eval(ctx, script, []string{key}, args...).Int()
+		if err != nil {
+			return false, err
+		}
+		return result == 1, nil
+	}
+
+	// Fallback for count-only locking (old behavior)
 	script := `
 		local current = tonumber(redis.call("get", KEYS[1]))
 		if current == nil then return 0 end
@@ -99,4 +144,37 @@ func (r *eventRepository) LockSeats(eventID uint, count int, ticketClass string)
 	}
 
 	return result == 1, nil
+}
+
+func (r *eventRepository) UnlockSeats(eventID uint, count int, ticketClass string, seatIDs []string) error {
+	ctx := context.Background()
+	key := fmt.Sprintf("event:%d:seats", eventID)
+	if ticketClass != "" {
+		key = fmt.Sprintf("event:%d:seats:%s", eventID, ticketClass)
+	}
+
+	if len(seatIDs) > 0 {
+		script := `
+			local countKey = KEYS[1]
+			local incrAmount = tonumber(ARGV[1])
+			
+			-- Unlock seats
+			for i = 2, #ARGV do
+				redis.call("DEL", ARGV[i])
+			end
+
+			-- Increment count
+			redis.call("INCRBY", countKey, incrAmount)
+			return 1
+		`
+		args := []interface{}{count}
+		for _, seatID := range seatIDs {
+			args = append(args, fmt.Sprintf("event:%d:seat:%s", eventID, seatID))
+		}
+
+		return database.RedisClient.Eval(ctx, script, []string{key}, args...).Err()
+	}
+
+	// Fallback count-only unlock
+	return database.RedisClient.IncrBy(ctx, key, int64(count)).Err()
 }

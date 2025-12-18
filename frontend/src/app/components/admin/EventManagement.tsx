@@ -96,17 +96,23 @@ export function EventManagement({ events, bookings, onDeleteEvent }: EventManage
                   <p className="text-sm mb-3">Recent Registrations</p>
                   <div className="space-y-2 max-h-40 overflow-y-auto">
                     {bookings
-                      .filter(b => b.eventId === event.id)
-                      .slice(0, 3)
+                      .filter(b => b.eventId === event.id && b.status === 'confirmed')
+                      .sort((a, b) => new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime())
+                      .slice(0, 10)
                       .map(booking => (
                         <div
                           key={booking.id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-[var(--secondary)] rounded-lg text-sm"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-(--secondary) rounded-lg text-sm"
                         >
-                          <span className="truncate">{booking.userEmail}</span>
-                          <div className="flex items-center gap-3 text-xs text-[var(--muted-foreground)]">
+                          <div className="flex flex-col">
+                            <span className="truncate font-medium">{booking.userEmail}</span>
+                            <span className="text-xs text-(--muted-foreground)">
+                              {new Date(booking.bookingDate).toLocaleDateString()} 
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-(--muted-foreground)">
                             <span>{booking.seats.length} seat(s)</span>
-                            <span className="text-[var(--primary)]">${booking.totalAmount.toFixed(2)}</span>
+                            <span className="text-(--primary)">${booking.totalAmount.toFixed(2)}</span>
                           </div>
                         </div>
                       ))}

@@ -10,6 +10,7 @@ import (
 	"github.com/Antiaastu/distributed-event-ticketing/booking-service/internal/middleware"
 	"github.com/Antiaastu/distributed-event-ticketing/booking-service/internal/repository"
 	"github.com/Antiaastu/distributed-event-ticketing/booking-service/internal/service"
+	"github.com/Antiaastu/distributed-event-ticketing/booking-service/internal/worker"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -26,6 +27,9 @@ func main() {
 	bookingRepo := repository.NewBookingRepository()
 	bookingService := service.NewBookingService(bookingRepo)
 	bookingHandler := handlers.NewBookingHandler(bookingService)
+
+	// Start Cleanup Worker
+	worker.StartCleanupWorker(bookingService)
 
 	// Connect to RabbitMQ and start consumer
 	messaging.ConnectRabbitMQ(bookingService)

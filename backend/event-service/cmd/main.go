@@ -23,6 +23,7 @@ import (
 func main() {
 	database.ConnectDB()
 	database.ConnectRedis()
+	messaging.ConnectRabbitMQ()
 
 	eventRepo := repository.NewEventRepository()
 	eventService := service.NewEventService(eventRepo)
@@ -43,6 +44,7 @@ func main() {
 	api.GET("/events", eventHandler.GetEvents)
 	api.GET("/events/:id", eventHandler.GetEvent)
 	api.POST("/events/:id/lock", eventHandler.LockSeats)
+	api.POST("/events/:id/unlock", eventHandler.UnlockSeats)
 
 	// Protected endpoints
 	api.Use(middleware.AuthMiddleware())

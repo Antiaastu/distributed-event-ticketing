@@ -71,3 +71,51 @@ func PublishBookingConfirmed(event BookingConfirmedEvent) error {
 	log.Printf("Published booking_confirmed event for booking %d", event.BookingID)
 	return nil
 }
+
+type AuditLogMessage struct {
+	UserID    uint   `json:"user_id"`
+	Action    string `json:"action"`
+	Details   string `json:"details"`
+	IPAddress string `json:"ip_address"`
+	CreatedAt string `json:"created_at"`
+}
+
+func PublishAuditLog(userID uint, action, details string) {
+	connStr := fmt.Sprintf("amqp://%s:%s@%s:%s/",
+		os.Getenv("RABBITMQ_USER"),
+		os.Getenv("RABBITMQ_PASS"),
+		os.Getenv("RABBITMQ_HOST"),
+		os.Getenv("RABBITMQ_PORT"),
+	)
+
+	conn, err := amqp.Dial(connStr)
+	if err != nil {
+		log.Printf("Failed to connect to RabbitMQ for audit: %v", err)
+		return
+	}
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Printf("Failed to open channel for audit: %v", err)
+		return
+	}
+	defer ch.Close()
+
+	msg := AuditLogMessage{
+		UserID:  userID,
+		Action:  action,
+		Details: details,
+	}
+	body, _ := json.Marshal(msg)
+
+	ch.Publish(
+		"",           // exchange
+		"audit_logs", // routing key
+		false,        // mandatory
+		false,        // immediate
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        body,
+		})
+}
