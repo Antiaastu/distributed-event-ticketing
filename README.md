@@ -1,8 +1,8 @@
-﻿# Distributed Event Ticketing System
+# Distributed Event Ticketing System
 
 A robust, microservices-based event ticketing platform designed to handle high-concurrency ticket bookings. This project demonstrates a modern distributed architecture using Go for backend services and Next.js for a responsive frontend interface.
 
-##  Project Overview
+## 🚀 Project Overview
 
 The Distributed Event Ticketing System allows users to browse events, select specific seats (including VIP/VVIP classes), and book tickets in real-time. It features a secure authentication system, an admin dashboard for event management, and a resilient booking flow that handles concurrency using locking mechanisms.
 
@@ -14,9 +14,9 @@ The Distributed Event Ticketing System allows users to browse events, select spe
 - **Resilient State Management**: Persists booking flows across page refreshes.
 - **Automated Notifications**: Email notifications for booking confirmations (simulated).
 
-##  System Architecture
+## 🏗️ System Architecture
 
-`mermaid
+```mermaid
 graph LR
     %% Styles matching the reference image
     classDef frontend fill:#222,stroke:#d97706,stroke-width:2px,color:#fff,rx:5,ry:5;
@@ -95,9 +95,9 @@ graph LR
 
     %% Monitoring Connection
     Prometheus -.->|Scrapes Metrics| Auth
-`
+```
 
-##  Tech Stack
+## 🛠️ Tech Stack
 
 ### Backend
 - **Language**: Go (Golang)
@@ -119,13 +119,13 @@ graph LR
 - **UI Components**: Radix UI / Shadcn
 - **State Management**: React Context API + LocalStorage
 
-##  Monitoring & Observability
+## 📊 Monitoring & Observability
 
 The system includes a comprehensive monitoring stack to track service health and performance.
 
-- **Prometheus**: Scrapes metrics from all microservices at /metrics. It collects data such as:
-  - http_requests_total: Total number of HTTP requests by method, handler, and status code.
-  - http_request_duration_seconds: Histogram of request latencies.
+- **Prometheus**: Scrapes metrics from all microservices at `/metrics`. It collects data such as:
+  - `http_requests_total`: Total number of HTTP requests by method, handler, and status code.
+  - `http_request_duration_seconds`: Histogram of request latencies.
   - Go runtime metrics (memory usage, goroutines, etc.).
 
 - **Grafana**: Visualizes the metrics collected by Prometheus. It provides dashboards to monitor:
@@ -135,34 +135,34 @@ The system includes a comprehensive monitoring stack to track service health and
 
 ### Accessing Dashboards
 - **Prometheus**: [http://localhost:9090](http://localhost:9090)
-- **Grafana**: [http://localhost:3100](http://localhost:3100) (Default login: admin / admin)
+- **Grafana**: [http://localhost:3100](http://localhost:3100) (Default login: `admin` / `admin`)
 
-##  Security & Performance
+## 🛡️ Security & Performance
 
 - **Rate Limiting**: The API Gateway (Nginx) is configured with a rate limit of **10 requests/second** per IP (with a burst allowance of 20) to prevent abuse and DDoS attacks.
 - **High Capacity**: Stress testing with **k6** demonstrated the system can handle **100+ concurrent users** with sub-3ms latency and zero failures.
 
-##  Project Structure
+## 📂 Project Structure
 
-`
+```text
 event_ticketing/
- backend/                # Go microservices and Docker config
-    auth-service/       # User authentication & authorization
-    booking-service/    # Ticket booking logic
-    event-service/      # Event & seat management
-    notification-service/ # Email/SMS notifications
-    payment-service/    # Payment processing simulation
-    docker-compose.yml  # Orchestration for all services
+├── backend/                # Go microservices and Docker config
+│   ├── auth-service/       # User authentication & authorization
+│   ├── booking-service/    # Ticket booking logic
+│   ├── event-service/      # Event & seat management
+│   ├── notification-service/ # Email/SMS notifications
+│   ├── payment-service/    # Payment processing simulation
+│   └── docker-compose.yml  # Orchestration for all services
+│
+├── frontend/               # Next.js client application
+│   ├── src/app/            # App router pages & layouts
+│   ├── src/components/     # Reusable UI components
+│   └── src/context/        # Global state management
+│
+└── README.md               # This file
+```
 
- frontend/               # Next.js client application
-    src/app/            # App router pages & layouts
-    src/components/     # Reusable UI components
-    src/context/        # Global state management
-
- README.md               # This file
-`
-
-##  Getting Started
+## 🏁 Getting Started
 
 ### Prerequisites
 - **Docker Desktop** (for running backend services and databases)
@@ -172,40 +172,40 @@ event_ticketing/
 ### 1. Start the Backend
 The backend relies on several infrastructure components (Postgres, Redis, RabbitMQ). The easiest way to run it is via Docker Compose.
 
-`bash
+```bash
 cd backend
 # Create a .env file if not present (see backend/README.md)
 docker-compose up --build
 # To run and start all the services in the background
 docker compose up -d
-`
+```
 
 ### 2. Start the Frontend
 Once the backend services are running:
 
-`bash
+```bash
 cd frontend
 # Install dependencies
 npm install
 # Run the development server
 npm run dev
-`
+```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-##  Documentation
+## 📚 Documentation
 
 - **Backend Details**: See [backend/README.md](./backend/README.md) for API endpoints, service details, and environment configuration.
 - **Frontend Details**: See [frontend/README.md](./frontend/README.md) for component structure, routing, and UI customization.
 
-##  Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create your feature branch (git checkout -b feature/amazing-feature)
-3. Commit your changes (git commit -m 'Add some amazing feature')
-4. Push to the branch (git push origin feature/amazing-feature)
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-##  License
+## 📄 License
 
 This project is licensed under the MIT License.
