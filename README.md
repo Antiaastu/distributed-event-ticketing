@@ -23,6 +23,7 @@ graph LR
     classDef service fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#fff,rx:5,ry:5;
     classDef database fill:#222,stroke:#d97706,stroke-width:2px,color:#fff,rx:5,ry:5;
     classDef messaging fill:#222,stroke:#d97706,stroke-width:2px,color:#fff,rx:5,ry:5;
+    classDef monitoring fill:#222,stroke:#10b981,stroke-width:2px,color:#fff,rx:5,ry:5;
 
     %% Left Column: Frontend
     subgraph Frontend_Group [Frontend]
@@ -34,6 +35,13 @@ graph LR
     subgraph Gateway_Group [API Gateway]
         direction TB
         Nginx(Nginx Reverse Proxy):::service
+    end
+
+    %% Monitoring
+    subgraph Monitoring_Group [Monitoring]
+        direction TB
+        Prometheus(Prometheus):::monitoring
+        Grafana(Grafana):::monitoring
     end
 
     %% Middle Column: Microservices (Ordered to minimize crossing)
@@ -84,6 +92,9 @@ graph LR
     %% Increased length to avoid overlap
     RabbitMQ --->|Send Email| Notif
     RabbitMQ -->|Update Status| Booking
+
+    %% Monitoring Connection
+    Prometheus -.->|Scrapes Metrics| Auth
 ```
 
 ## 🛠️ Tech Stack
@@ -96,10 +107,32 @@ graph LR
 - **Message Broker**: RabbitMQ (Async communication)
 - **Containerization**: Docker & Docker Compose
 
+### Monitoring
+- **Metrics Collection**: Prometheus
+- **Visualization**: Grafana
+
 ### Frontend
 - **Framework**: Next.js 16 (App Router)
 - **Library**: React 19
-- **Styling**: Tailwind CSS 4
+- **� Monitoring & Observability
+
+The system includes a comprehensive monitoring stack to track service health and performance.
+
+- **Prometheus**: Scrapes metrics from all microservices at `/metrics`. It collects data such as:
+  - `http_requests_total`: Total number of HTTP requests by method, handler, and status code.
+  - `http_request_duration_seconds`: Histogram of request latencies.
+  - Go runtime metrics (memory usage, goroutines, etc.).
+
+- **Grafana**: Visualizes the metrics collected by Prometheus. It provides dashboards to monitor:
+  - Request rates and error rates per service.
+  - Latency distributions.
+  - System resource usage.
+
+### Accessing Dashboards
+- **Prometheus**: [http://localhost:9090](http://localhost:9090)
+- **Grafana**: [http://localhost:3100](http://localhost:3100) (Default login: `admin` / `admin`)
+
+## �Styling**: Tailwind CSS 4
 - **UI Components**: Radix UI / Shadcn
 - **State Management**: React Context API + LocalStorage
 

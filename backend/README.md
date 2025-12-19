@@ -19,6 +19,25 @@ The backend is composed of the following independent services:
 - **Database**: PostgreSQL (Relational data), Redis (Caching & Distributed Locking)
 - **Message Broker**: RabbitMQ (Inter-service communication)
 - **Containerization**: Docker
+- **Monitoring**: Prometheus & Grafana
+
+## 📊 Monitoring
+
+The backend services are instrumented with Prometheus metrics to provide visibility into system performance.
+
+### Metrics Exposed
+Each service exposes a `/metrics` endpoint that provides:
+- **Request Counts**: `http_requests_total` (labeled by method, path, status)
+- **Latency**: `http_request_duration_seconds` (histogram)
+- **Runtime Metrics**: Go memory usage, goroutines, GC stats.
+
+### Infrastructure
+- **Prometheus**: Configured to scrape all backend services every 5 seconds.
+- **Grafana**: Pre-configured to connect to Prometheus as a data source.
+
+### Access
+- **Prometheus UI**: http://localhost:9090
+- **Grafana UI**: http://localhost:3100
 
 ## 🚀 Getting Started
 
