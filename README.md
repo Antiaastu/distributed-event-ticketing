@@ -135,7 +135,7 @@ The system includes a comprehensive monitoring stack to track service health and
 
 ### Accessing Dashboards
 - **Prometheus**: [http://localhost:9090](http://localhost:9090)
-- **Grafana**: [http://localhost:3100](http://localhost:3100) (Default login: dmin / dmin)
+- **Grafana**: [http://localhost:3100](http://localhost:3100) (Default login: admin / admin)
 
 ##  Security & Performance
 
@@ -172,7 +172,7 @@ event_ticketing/
 ### 1. Start the Backend
 The backend relies on several infrastructure components (Postgres, Redis, RabbitMQ). The easiest way to run it is via Docker Compose.
 
-`ash
+`bash
 cd backend
 # Create a .env file if not present (see backend/README.md)
 docker-compose up --build
@@ -183,7 +183,7 @@ docker compose up -d
 ### 2. Start the Frontend
 Once the backend services are running:
 
-`ash
+`bash
 cd frontend
 # Install dependencies
 npm install
