@@ -12,6 +12,7 @@ import (
 	"github.com/Antiaastu/distributed-event-ticketing/booking-service/internal/service"
 	"github.com/Antiaastu/distributed-event-ticketing/booking-service/internal/worker"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -35,6 +36,12 @@ func main() {
 	messaging.ConnectRabbitMQ(bookingService)
 
 	r := gin.Default()
+
+	// Global Prometheus Middleware
+	r.Use(middleware.PrometheusMiddleware())
+
+	// Expose Prometheus Metrics Endpoint
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// CORS handled by Nginx Gateway
 

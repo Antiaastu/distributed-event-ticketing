@@ -7,9 +7,11 @@ import (
 	"github.com/Antiaastu/distributed-event-ticketing/payment-service/internal/database"
 	"github.com/Antiaastu/distributed-event-ticketing/payment-service/internal/handlers"
 	"github.com/Antiaastu/distributed-event-ticketing/payment-service/internal/messaging"
+	"github.com/Antiaastu/distributed-event-ticketing/payment-service/internal/middleware"
 	"github.com/Antiaastu/distributed-event-ticketing/payment-service/internal/repository"
 	"github.com/Antiaastu/distributed-event-ticketing/payment-service/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -28,6 +30,12 @@ func main() {
 	paymentHandler := handlers.NewPaymentHandler(paymentService)
 
 	r := gin.Default()
+
+	// Global Prometheus Middleware
+	r.Use(middleware.PrometheusMiddleware())
+
+	// Expose Prometheus Metrics Endpoint
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// CORS handled by Nginx Gateway
 

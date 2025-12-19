@@ -5,8 +5,10 @@ import (
 
 	"github.com/Antiaastu/distributed-event-ticketing/notification-service/internal/handlers"
 	"github.com/Antiaastu/distributed-event-ticketing/notification-service/internal/messaging"
+	"github.com/Antiaastu/distributed-event-ticketing/notification-service/internal/middleware"
 	"github.com/Antiaastu/distributed-event-ticketing/notification-service/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -19,6 +21,12 @@ func main() {
 
 	// Start HTTP Server
 	r := gin.Default()
+
+	// Apply Prometheus Middleware
+	r.Use(middleware.PrometheusMiddleware())
+
+	// Expose Prometheus Metrics Endpoint
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// CORS handled by Nginx Gateway
 
