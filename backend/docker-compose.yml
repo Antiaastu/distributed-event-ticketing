@@ -196,6 +196,17 @@ services:
     networks:
       - event-network
 
+  k6:
+    image: grafana/k6:latest
+    container_name: k6
+    volumes:
+      - ./k6:/scripts
+    command: run /scripts/script.js
+    networks:
+      - event-network
+    profiles:
+      - test
+
 networks:
   event-network:
     driver: bridge

@@ -20,6 +20,33 @@ The backend is composed of the following independent services:
 - **Message Broker**: RabbitMQ (Inter-service communication)
 - **Containerization**: Docker
 - **Monitoring**: Prometheus & Grafana
+- **Load Testing**: k6
+
+## 🛡️ Security: Rate Limiting
+
+To protect the backend services from abuse, **Nginx** is configured with rate limiting:
+- **Zone**: 10MB shared memory zone tracking IP addresses.
+- **Limit**: **10 requests per second** per IP.
+- **Burst**: Allows a burst of up to **20 requests** before rejecting with `503 Service Temporarily Unavailable`.
+
+## 📉 Load Testing
+
+The project includes a **k6** setup running in Docker for stress testing.
+
+### Running a Load Test
+You don't need to install k6 locally. Run the following command to execute the load test script:
+
+```bash
+docker-compose run --rm k6
+```
+
+This runs the script located at `backend/k6/script.js`.
+
+### Performance Benchmarks
+Recent stress testing (ramping up to **100 concurrent users**) yielded:
+- **Throughput**: ~64 requests/second
+- **Latency (p95)**: < 3ms
+- **Error Rate**: 0% (at 100 concurrent users)
 
 ## 📊 Monitoring
 
